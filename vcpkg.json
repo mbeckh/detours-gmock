@@ -1,0 +1,10 @@
+{
+  "name": "detours-gmock",
+  "version-semver": "1.0.0",
+  "port-version": 0,
+  "description": "Helper functions and macros for using detours with googlemock.",
+  "dependencies": [
+    "detours",
+    "gtest"
+  ]
+}
