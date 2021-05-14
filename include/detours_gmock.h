@@ -24,6 +24,7 @@ limitations under the License.
 #include <detours.h>
 
 #include <cassert>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <type_traits>
@@ -309,7 +310,7 @@ ACTION_P3(WithAssert, mock, obj, action) {  // NOLINT(cppcoreguidelines-special-
 	static_assert(std::is_same_v<std::remove_cvref_t<decltype(mock->self())>, std::remove_cvref_t<std::remove_pointer_t<obj_type>>>);
 	if (std::addressof(mock->self()) != obj) {
 		assert(false);
-		throw std::bad_function_call();
+		std::abort();
 	}
 	return static_cast<testing::Action<function_type>>(action).Perform(args);
 }

@@ -24,6 +24,7 @@ limitations under the License.
 #include <detours.h>
 
 #include <cassert>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <type_traits>

@@ -37,7 +37,7 @@ DTGM_DECLARE_API_MOCK(Win32, WIN32_FUNCTIONS);
 
 class TestClass {
 public:
-	[[nodiscard]] int GetValue() const {
+	[[nodiscard]] __declspec(noinline) int GetValue() const {
 		return m_value;
 	};
 
@@ -184,7 +184,7 @@ TEST(Class_Test, Mock_WithAssert_ReturnMocked) {  // NOLINT(cert-err58-cpp, cppc
 	DTGM_DETACH_CLASS_MOCK(TestClass);
 }
 
-TEST(Class_Test, Mock_WithAssertError_Throw) {  // NOLINT(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
+TEST(Class_Test, Mock_WithAssertError_Abort) {  // NOLINT(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables)
 	TestClass tc;
 	TestClass other;
 	DTGM_DEFINE_CLASS_MOCK(TestClass, mock);
@@ -194,9 +194,9 @@ TEST(Class_Test, Mock_WithAssertError_Throw) {  // NOLINT(cert-err58-cpp, cppcor
 
 	int i = 0;
 #ifdef NDEBUG
-	EXPECT_THROW(i = other.GetValue(), std::bad_function_call);
+	EXPECT_DEATH(i = other.GetValue(), "");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
 #else
-	ASSERT_DEATH(i = other.GetValue(), "Assertion failed: false");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
+	EXPECT_DEATH(i = other.GetValue(), "Assertion failed: false");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
 #endif
 
 	DTGM_DETACH_CLASS_MOCK(TestClass);
