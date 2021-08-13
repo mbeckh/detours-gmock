@@ -11,10 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
-
-string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" IS_MAIN_PROJECT)
-option(BUILD_TESTING "Build tests" ${IS_MAIN_PROJECT})
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 project(detours-gmock VERSION 1.0.1
     DESCRIPTION "Helper functions and macros for using detours with googlemock."
@@ -39,19 +36,18 @@ set_target_properties(gmock PROPERTIES
 )
 target_link_libraries(gmock INTERFACE detours::detours GTest::gmock)
 
+if(PROJECT_IS_TOP_LEVEL)
+	include(CMakePackageConfigHelpers)
+	configure_package_config_file("cmake/detours-gmock-config.cmake.in" "detours-gmock-config.cmake" INSTALL_DESTINATION "share/detours-gmock")
+	write_basic_package_version_file("${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" VERSION ${detours-gmock_VERSION} COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file("cmake/detours-gmock-config.cmake.in" "detours-gmock-config.cmake" INSTALL_DESTINATION "share/detours-gmock")
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" VERSION ${detours-gmock_VERSION} COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
+	install(TARGETS gmock EXPORT detours-gmock-targets)
+	install(FILES "include/detours_gmock.h" TYPE INCLUDE)
+	install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours::")
+	install(FILES "${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" "${PROJECT_BINARY_DIR}/detours-gmock-config.cmake" DESTINATION "share/detours-gmock")
+endif()
 
-install(TARGETS gmock EXPORT detours-gmock-targets)
-install(FILES "include/detours_gmock.h" TYPE INCLUDE)
-install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours::")
-install(FILES "${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" "${PROJECT_BINARY_DIR}/detours-gmock-config.cmake" DESTINATION "share/detours-gmock")
-
-
-if(BUILD_TESTING)
-    include(GoogleTest)
+if(PROJECT_IS_TOP_LEVEL)
     enable_testing()
 
     add_executable(detours-gmock_Test
@@ -69,5 +65,5 @@ if(BUILD_TESTING)
     )
     target_link_libraries(detours-gmock_Test PRIVATE detours::gmock GTest::gtest GTest::gtest_main shlwapi)
 
-    gtest_discover_tests(detours-gmock_Test)
+    add_test(NAME detours-gmock_Test_PASS COMMAND detours-gmock_Test)
 endif()

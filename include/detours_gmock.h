@@ -20,7 +20,6 @@ limitations under the License.
 #include <gtest/gtest.h>
 
 #include <windows.h>
-// MUST include <windows.h> before <detours.h>
 #include <detours.h>
 
 #include <cassert>
