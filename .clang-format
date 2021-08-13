@@ -32,4 +32,4 @@ SpaceAfterCStyleCast: true
 SpacesBeforeTrailingComments: 2
 Standard: c++20
 TabWidth: 4
-UseTab: AlignWithSpaces
+UseTab: ForContinuationAndIndentation
