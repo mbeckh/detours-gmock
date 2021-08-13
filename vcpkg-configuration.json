@@ -3,7 +3,7 @@
     {
       "kind": "git",
       "repository": "https://github.com/mbeckh/vcpkg-registry.git",
-      "baseline": "6488276cbb46aaf3a5a5308928a3a2bcfc4a1376 ",
+      "baseline": "6488276cbb46aaf3a5a5308928a3a2bcfc4a1376",
       "packages": [ "detours", "detours-gmock", "gtest" ]
     }
   ]
