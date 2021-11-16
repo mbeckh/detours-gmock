@@ -21,37 +21,35 @@ project(detours-gmock VERSION 1.0.1
 find_package(detours REQUIRED)
 find_package(GTest REQUIRED)
 
-add_library(gmock INTERFACE
+add_library(detours-gmock INTERFACE
     "include/detours_gmock.h"
 )
-add_library(detours::gmock ALIAS gmock)
+add_library(detours::gmock ALIAS detours-gmock)
 
-target_compile_features(gmock INTERFACE cxx_std_20)
-target_include_directories(gmock INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:include>")
-set_target_properties(gmock PROPERTIES
+target_compile_features(detours-gmock INTERFACE cxx_std_20)
+target_include_directories(detours-gmock INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:include>")
+set_target_properties(detours-gmock PROPERTIES
     DEBUG_POSTFIX d
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
 )
-target_link_libraries(gmock INTERFACE detours::detours GTest::gmock)
+target_link_libraries(detours-gmock INTERFACE detours::detours GTest::gmock)
 
-if(PROJECT_IS_TOP_LEVEL)
-	include(CMakePackageConfigHelpers)
-	configure_package_config_file("cmake/detours-gmock-config.cmake.in" "detours-gmock-config.cmake" INSTALL_DESTINATION "share/detours-gmock")
-	write_basic_package_version_file("${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" VERSION ${detours-gmock_VERSION} COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
+include(CMakePackageConfigHelpers)
+configure_package_config_file("cmake/detours-gmock-config.cmake.in" "detours-gmock-config.cmake" INSTALL_DESTINATION "share/detours-gmock")
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" VERSION ${detours-gmock_VERSION} COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
 
-	install(TARGETS gmock EXPORT detours-gmock-targets)
-	install(FILES "include/detours_gmock.h" TYPE INCLUDE)
-	install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours::")
-	install(FILES "${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" "${PROJECT_BINARY_DIR}/detours-gmock-config.cmake" DESTINATION "share/detours-gmock")
-endif()
+install(TARGETS detours-gmock EXPORT detours-gmock-targets)
+install(FILES "include/detours_gmock.h" TYPE INCLUDE)
+install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours::")
+install(FILES "${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" "${PROJECT_BINARY_DIR}/detours-gmock-config.cmake" DESTINATION "share/detours-gmock")
 
-if(PROJECT_IS_TOP_LEVEL)
+if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
     enable_testing()
 
     add_executable(detours-gmock_Test
-        "test/detours_gmock_Test.cpp"
+        "test/detours_gmock.test.cpp"
     )
 
     target_compile_definitions(detours-gmock_Test PRIVATE WIN32_LEAN_AND_MEAN=1 NOMINMAX=1)
