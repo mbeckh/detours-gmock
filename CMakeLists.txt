@@ -13,7 +13,7 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
-project(detours-gmock VERSION 1.0.1
+project(detours-gmock VERSION 1.0.2
     DESCRIPTION "Helper functions and macros for using detours with googlemock."
     HOMEPAGE_URL "https://github.com/mbeckh/detours-gmock"
     LANGUAGES CXX)

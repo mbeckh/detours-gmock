@@ -26,23 +26,50 @@ limitations under the License.
 
 #include <tuple>
 
+namespace detours_gmock::test {
+namespace {
+
 namespace t = testing;
 
-namespace detours_gmock::test {
-
-#define WIN32_FUNCTIONS(fn_)       \
-	fn_(1, int, WINAPI, StrToIntA, \
-	    (PCSTR pszSrc),            \
-	    (pszSrc),                  \
+#undef WIN32_FUNCTIONS
+#define WIN32_FUNCTIONS(fn_)            \
+	fn_(1, int, WINAPI, StrToIntA,      \
+	    (PCSTR pszSrc),                 \
+	    (pszSrc),                       \
+	    nullptr);                       \
+	fn_(2, int, WINAPI, StrTrimA,       \
+	    (PSTR psz, PCSTR pszTrimChars), \
+	    (psz, pszTrimChars),            \
 	    nullptr)
 
 DTGM_DECLARE_API_MOCK(Win32, WIN32_FUNCTIONS);
+
+
+#undef LOCAL_WIN32_FUNCTIONS
+#define LOCAL_WIN32_FUNCTIONS(fn_)        \
+	fn_(1, int, WINAPI, StrToIntW,        \
+	    (PCWSTR pszSrc),                  \
+	    (pszSrc),                         \
+	    nullptr);                         \
+	fn_(2, int, WINAPI, StrTrimW,         \
+	    (PWSTR psz, PCWSTR pszTrimChars), \
+	    (psz, pszTrimChars),              \
+	    nullptr)
+
+// Local classes MUST NOT contain static members.
+class ApiMockLocal {
+public:
+	DTGM_API_MOCK(mock, LOCAL_WIN32_FUNCTIONS);
+};
 
 
 class TestClass {
 public:
 	[[nodiscard]] __declspec(noinline) int GetValue() const noexcept {
 		return m_value;
+	};
+	__declspec(noinline) void SetValue(int value) noexcept {
+		m_value = value;
 	};
 
 public:
@@ -52,14 +79,52 @@ private:
 	int m_value = kValue;
 };
 
-#define CLASS_FUNCTIONS(fn_)         \
-	fn_(TestClass, 0, int, GetValue, \
-	    (),                          \
-	    (),                          \
+#undef CLASS_FUNCTIONS
+#define CLASS_FUNCTIONS(fn_)          \
+	fn_(TestClass, 0, int, GetValue,  \
+	    (),                           \
+	    (),                           \
+	    nullptr);                     \
+	fn_(TestClass, 1, void, SetValue, \
+	    (int value),                  \
+	    (value),                      \
 	    nullptr)
 
 DTGM_DECLARE_CLASS_MOCK(TestClass, CLASS_FUNCTIONS);
 
+
+class TestClassLocal {
+public:
+	[[nodiscard]] __declspec(noinline) int GetLocalValue() const noexcept {
+		return m_value;
+	};
+	__declspec(noinline) void SetLocalValue(int value) noexcept {
+		m_value = value;
+	};
+
+public:
+	static constexpr int kValue = 23;
+
+private:
+	int m_value = kValue;
+};
+
+#undef LOCAL_CLASS_FUNCTIONS
+#define LOCAL_CLASS_FUNCTIONS(fn_)              \
+	fn_(TestClassLocal, 0, int, GetLocalValue,  \
+	    (),                                     \
+	    (),                                     \
+	    nullptr);                               \
+	fn_(TestClassLocal, 1, void, SetLocalValue, \
+	    (int value),                            \
+	    (value),                                \
+	    nullptr)
+
+// Local classes MUST NOT contain static members.
+class ClassMockLocal {
+public:
+	DTGM_CLASS_MOCK(TestClassLocal, mock, LOCAL_CLASS_FUNCTIONS);
+};
 
 //
 // API Mock
@@ -84,8 +149,17 @@ TEST(API_Test, Mock_Call_ReturnMocked) {
 
 	EXPECT_EQ(kResult, StrToIntA("12"));
 	EXPECT_EQ(kResult, StrToIntA("Test"));
+}
 
-	DTGM_DETACH_API_MOCK(Win32);
+TEST(API_Test, MockLocal_Call_ReturnMocked) {
+	constexpr int kResult = 42;
+	ApiMockLocal local;
+	ON_CALL(local.mock, StrToIntW(t::_))
+	    .WillByDefault(t::Return(kResult));
+	EXPECT_CALL(local.mock, StrToIntW(t::_)).Times(2);
+
+	EXPECT_EQ(kResult, StrToIntW(L"12"));
+	EXPECT_EQ(kResult, StrToIntW(L"Test"));
 }
 
 TEST(API_Test, Mock_Call_SetLastError) {
@@ -112,8 +186,17 @@ TEST(API_Test, Mock_CallReal_ReturnResult) {
 	EXPECT_CALL(mock, StrToIntA(t::_)).Times(0);
 	EXPECT_EQ(12, DTGM_REAL(Win32, StrToIntA)("12"));
 	EXPECT_EQ(0, DTGM_REAL(Win32, StrToIntA)("Test"));
+}
 
-	DTGM_DETACH_API_MOCK(Win32);
+TEST(API_Test, MockLocal_CallReal_ReturnResult) {
+	constexpr int kMockedResult = 42;
+	ApiMockLocal local;
+	ON_CALL(local.mock, StrToIntW(t::_))
+	    .WillByDefault(t::Return(kMockedResult));
+
+	EXPECT_CALL(local.mock, StrToIntW(t::_)).Times(0);
+	EXPECT_EQ(12, local.mock.DTGM_Real_StrToIntW(L"12"));
+	EXPECT_EQ(0, local.mock.DTGM_Real_StrToIntW(L"Test"));
 }
 
 TEST(API_Test, NiceMock_Call_ReturnMocked) {
@@ -124,8 +207,6 @@ TEST(API_Test, NiceMock_Call_ReturnMocked) {
 
 	EXPECT_EQ(kResult, StrToIntA("12"));
 	EXPECT_EQ(kResult, StrToIntA("Test"));
-
-	DTGM_DETACH_API_MOCK(Win32);
 }
 
 TEST(API_Test, StrictMock_Call_ReturnMocked) {
@@ -137,8 +218,6 @@ TEST(API_Test, StrictMock_Call_ReturnMocked) {
 	EXPECT_CALL(mock, StrToIntA(t::_)).Times(2);
 	EXPECT_EQ(kResult, StrToIntA("12"));
 	EXPECT_EQ(kResult, StrToIntA("Test"));
-
-	DTGM_DETACH_API_MOCK(Win32);
 }
 
 
@@ -160,8 +239,17 @@ TEST(Class_Test, Mock_Call_ReturnMocked) {
 	EXPECT_CALL(mock, GetValue());
 
 	EXPECT_EQ(kResult, tc.GetValue());
+}
 
-	DTGM_DETACH_CLASS_MOCK(TestClass);
+TEST(Class_Test, MockLocal_Call_ReturnMocked) {
+	constexpr int kResult = 42;
+	const TestClassLocal tc;
+	ClassMockLocal local;
+	ON_CALL(local.mock, GetLocalValue())
+	    .WillByDefault(t::Return(kResult));
+	EXPECT_CALL(local.mock, GetLocalValue());
+
+	EXPECT_EQ(kResult, tc.GetLocalValue());
 }
 
 TEST(Class_Test, Mock_WithAssert_ReturnMocked) {
@@ -172,8 +260,6 @@ TEST(Class_Test, Mock_WithAssert_ReturnMocked) {
 	EXPECT_CALL(mock, GetValue());
 
 	EXPECT_EQ(-1, tc.GetValue());
-
-	DTGM_DETACH_CLASS_MOCK(TestClass);
 }
 
 TEST(Class_Test, Mock_WithAssertError_Abort) {
@@ -189,8 +275,6 @@ TEST(Class_Test, Mock_WithAssertError_Abort) {
 #else
 	EXPECT_DEATH(std::ignore = other.GetValue(), "Assertion failed: false");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
 #endif
-
-	DTGM_DETACH_CLASS_MOCK(TestClass);
 }
 
 TEST(Class_Test, NiceMock_Call_ReturnMocked) {
@@ -214,4 +298,5 @@ TEST(Class_Test, StrictMock_Call_ReturnMocked) {
 	EXPECT_EQ(kResult, tc.GetValue());
 }
 
+}  // namespace
 }  // namespace detours_gmock::test
