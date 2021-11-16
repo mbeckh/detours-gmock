@@ -26,4 +26,5 @@ limitations under the License.
 #include <cassert>
 #include <cstdlib>
 #include <memory>
+#include <tuple>
 #include <type_traits>
