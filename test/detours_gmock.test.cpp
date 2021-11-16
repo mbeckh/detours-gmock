@@ -60,6 +60,7 @@ private:
 
 DTGM_DECLARE_CLASS_MOCK(TestClass, CLASS_FUNCTIONS);
 
+
 //
 // API Mock
 //

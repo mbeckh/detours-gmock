@@ -39,72 +39,17 @@ limitations under the License.
 #define DTGM_ARG8 testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_
 #define DTGM_ARG9 testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_
 
-#define DTGM_INTERNAL_API_ACTION0(function_) \
-	__pragma(warning(suppress : 4100))       \
-	    ACTION(DTGM_Call##function_) {       \
-		return DTGM_real##function_();       \
-	}
-
-#define DTGM_INTERNAL_API_ACTION1(function_) \
-	__pragma(warning(suppress : 4100))       \
-	    ACTION(DTGM_Call##function_) {       \
-		return DTGM_real##function_(arg0);   \
-	}
-
-#define DTGM_INTERNAL_API_ACTION2(function_)     \
-	__pragma(warning(suppress : 4100))           \
-	    ACTION(DTGM_Call##function_) {           \
-		return DTGM_real##function_(arg0, arg1); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION3(function_)           \
-	__pragma(warning(suppress : 4100))                 \
-	    ACTION(DTGM_Call##function_) {                 \
-		return DTGM_real##function_(arg0, arg1, arg2); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION4(function_)                 \
-	__pragma(warning(suppress : 4100))                       \
-	    ACTION(DTGM_Call##function_) {                       \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION5(function_)                       \
-	__pragma(warning(suppress : 4100))                             \
-	    ACTION(DTGM_Call##function_) {                             \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3, arg4); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION6(function_)                             \
-	__pragma(warning(suppress : 4100))                                   \
-	    ACTION(DTGM_Call##function_) {                                   \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3, arg4, arg5); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION7(function_)                                   \
-	__pragma(warning(suppress : 4100))                                         \
-	    ACTION(DTGM_Call##function_) {                                         \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3, arg4, arg5, arg6); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION8(function_)                                         \
-	__pragma(warning(suppress : 4100))                                               \
-	    ACTION(DTGM_Call##function_) {                                               \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7); \
-	}
-
-#define DTGM_INTERNAL_API_ACTION9(function_)                                               \
-	__pragma(warning(suppress : 4100))                                                     \
-	    ACTION(DTGM_Call##function_) {                                                     \
-		return DTGM_real##function_(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); \
+#define DTGM_INTERNAL_API_ACTION(function_, parameters_, arguments_) \
+	auto DTGM_Call##function_ parameters_ {                          \
+		return DTGM_real##function_ arguments_;                      \
 	}
 
 #define DTGM_INTERNAL_DEFINE_API_MOCK_METHOD(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_) \
-	MOCK_METHOD##parameterCount_##_WITH_CALLTYPE(callType_, function_, return_ parameters_)
+	MOCK_METHOD(return_, function_, parameters_, (Calltype(callType_)))
 
 #define DTGM_INTERNAL_DEFINE_API_FUNCTIONS(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_)                                             \
 	static return_(callType_* DTGM_real##function_) parameters_ = function_; /* NOLINT(bugprone-macro-parentheses, cppcoreguidelines-avoid-non-const-global-variables) */ \
-	DTGM_INTERNAL_API_ACTION##parameterCount_(function_);                                                                                                                 \
+	DTGM_INTERNAL_API_ACTION(function_, parameters_, arguments_);                                                                                                         \
 	return_ callType_ DTGM_My##function_ parameters_ {                                                                                                                    \
 		return g_pApiMock->function_ arguments_;                                                                                                                          \
 	}
@@ -113,10 +58,10 @@ limitations under the License.
 	do {                                                                                                                        \
 		auto lambda = (default_);                                                                                               \
 		if (std::is_null_pointer_v<decltype(lambda)>) {                                                                         \
-			ON_CALL(*g_pApiMock, function_(DTGM_ARG##parameterCount_)).WillByDefault(DTGM_Call##function_());                   \
-			EXPECT_CALL(*g_pApiMock, function_(DTGM_ARG##parameterCount_)).Times(testing::AnyNumber());                         \
+			ON_CALL(*g_pApiMock, function_).WillByDefault(DTGM_Call##function_);                                                \
+			EXPECT_CALL(*g_pApiMock, function_).Times(testing::AnyNumber());                                                    \
 		} else {                                                                                                                \
-			ON_CALL(*g_pApiMock, function_(DTGM_ARG##parameterCount_)).WillByDefault((default_));                               \
+			ON_CALL(*g_pApiMock, function_).WillByDefault((default_));                                                          \
 		}                                                                                                                       \
 	} while (0)
 
@@ -207,7 +152,7 @@ limitations under the License.
 	}
 
 #define DTGM_INTERNAL_DEFINE_CLASS_MOCK_METHOD(class_, parameterCount_, return_, function_, parameters_, arguments_, default_) \
-	MOCK_METHOD##parameterCount_(function_, return_ parameters_);                                                              \
+	MOCK_METHOD(return_, function_, parameters_);                                                                              \
 	inline static return_(DTGM_FakeClass::*m_fake##function_) parameters_ = &DTGM_FakeClass::DTGM_fake##function_; /* NOLINT(bugprone-macro-parentheses) */
 
 #define DTGM_INTERNAL_SET_DEFAULT_CLASS_ACTION(class_, parameterCount_, return_, function_, parameters_, arguments_, default_)                                                                          \
