@@ -143,7 +143,7 @@ private:                                                                        
 //
 #define DTGM_INTERNAL_CLASS_FAKE_METHOD(class_, parameterCount_, return_, function_, parameters_, arguments_, default_)                                           \
 	/* NOLINTNEXTLINE(bugprone-macro-parentheses, cppcoreguidelines-avoid-non-const-global-variables) */                                                          \
-	inline static return_(DTGM_FakeClass::*DTGM_Function_##function_) parameters_ = reinterpret_cast<return_(DTGM_FakeClass::*) parameters_>(&class_::function_); \
+	static inline return_(DTGM_FakeClass::*DTGM_Function_##function_) parameters_ = reinterpret_cast<return_(DTGM_FakeClass::*) parameters_>(&class_::function_); \
 	return_ DTGM_Fake_##function_ parameters_ {                                                                                                                   \
 		EnterCriticalSection(&s_pClassMock->m_cs);                                                                                                                \
 		class Guard {                                                                                                                                             \
@@ -170,20 +170,20 @@ private:                                                                        
 	/* NOLINTNEXTLINE(bugprone-macro-parentheses, cppcoreguidelines-avoid-non-const-global-variables) */                       \
 	static inline return_(DTGM_FakeClass::*DTGM_Fake_##function_) parameters_ = &DTGM_FakeClass::DTGM_Fake_##function_;
 
-#define DTGM_INTERNAL_SET_DEFAULT_CLASS_ACTION(class_, parameterCount_, return_, function_, parameters_, arguments_, default_)                               \
-	do {                                                                                                                                                     \
-		auto lambda = (default_);                                                                                                                            \
-		if (std::is_null_pointer_v<decltype(lambda)>) {                                                                                                      \
-			ON_CALL(*this, function_(DTGM_ARG##parameterCount_))                                                                                             \
-			    .WillByDefault(                                                                                                                              \
-			        [this] parameters_ { /* NOLINT(bugprone-macro-parentheses) */                                                                            \
-				                         /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                    \
-				                         return (self().*static_cast<return_(class_::*) parameters_>(DTGM_FakeClass::DTGM_Function_##function_)) arguments_; \
-			        });                                                                                                                                      \
-			EXPECT_CALL(*this, function_(DTGM_ARG##parameterCount_)).Times(testing::AnyNumber());                                                            \
-		} else {                                                                                                                                             \
-			ON_CALL(*this, function_(DTGM_ARG##parameterCount_)).WillByDefault((default_));                                                                  \
-		}                                                                                                                                                    \
+#define DTGM_INTERNAL_SET_DEFAULT_CLASS_ACTION(class_, parameterCount_, return_, function_, parameters_, arguments_, default_)                                    \
+	do {                                                                                                                                                          \
+		auto lambda = (default_);                                                                                                                                 \
+		if (std::is_null_pointer_v<decltype(lambda)>) {                                                                                                           \
+			ON_CALL(*this, function_(DTGM_ARG##parameterCount_))                                                                                                  \
+			    .WillByDefault(                                                                                                                                   \
+			        [this] parameters_ { /* NOLINT(bugprone-macro-parentheses) */                                                                                 \
+				                         /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                         \
+				                         return (self().*reinterpret_cast<return_(class_::*) parameters_>(DTGM_FakeClass::DTGM_Function_##function_)) arguments_; \
+			        });                                                                                                                                           \
+			EXPECT_CALL(*this, function_(DTGM_ARG##parameterCount_)).Times(testing::AnyNumber());                                                                 \
+		} else {                                                                                                                                                  \
+			ON_CALL(*this, function_(DTGM_ARG##parameterCount_)).WillByDefault((default_));                                                                       \
+		}                                                                                                                                                         \
 	} while (0)
 
 #define DTGM_INTERNAL_CLASS_ATTACH(class_, parameterCount_, return_, function_, parameters_, arguments_, default_) \
