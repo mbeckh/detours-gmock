@@ -129,11 +129,25 @@ private:                                                                        
 	DTGM_DECLARE_API_MOCK(name_, functions_);   \
 	DTGM_DEFINE_API_MOCK(name_, var_)
 
+#define DTGM_NICE_API_MOCK_(name_, var_, functions_) \
+	DTGM_DECLARE_API_MOCK(name_, functions_);        \
+	DTGM_DEFINE_NICE_API_MOCK(name_, var_)
+
+#define DTGM_STRICT_API_MOCK_(name_, var_, functions_) \
+	DTGM_DECLARE_API_MOCK(name_, functions_);          \
+	DTGM_DEFINE_STRICT_API_MOCK(name_, var_)
+
 #define DTGM_API_MOCK_NAME_(base_, id_) base_##id_
 #define DTGM_API_MOCK_NAME(base_, id_) DTGM_API_MOCK_NAME_(base_, id_)
 
 #define DTGM_API_MOCK(var_, functions_) \
 	DTGM_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
+
+#define DTGM_NICE_API_MOCK(var_, functions_) \
+	DTGM_NICE_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
+
+#define DTGM_STRICT_API_MOCK(var_, functions_) \
+	DTGM_STRICT_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
 
 #define DTGM_REAL(name_, function_) /* deprecated */ \
 	detours_gmock_##name_::DTGM_Function_##function_
@@ -263,6 +277,14 @@ private:                                                                        
 #define DTGM_CLASS_MOCK(class_, var_, functions_) \
 	DTGM_DECLARE_CLASS_MOCK(class_, functions_);  \
 	DTGM_DEFINE_CLASS_MOCK(class_, var_)
+
+#define DTGM_NICE_CLASS_MOCK(class_, var_, functions_) \
+	DTGM_DECLARE_CLASS_MOCK(class_, functions_);       \
+	DTGM_DEFINE_NICE_CLASS_MOCK(class_, var_)
+
+#define DTGM_STRICT_CLASS_MOCK(class_, var_, functions_) \
+	DTGM_DECLARE_CLASS_MOCK(class_, functions_);         \
+	DTGM_DEFINE_STRICT_CLASS_MOCK(class_, var_)
 
 
 namespace detours_gmock {
