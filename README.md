@@ -40,9 +40,6 @@ namespace t = testing;
     (hObject),                                                                                                                                                                                 \
     nullptr);
 
-// Declare a mock type with name Win32. Use any valid C++ identifier.
-DTGM_DECLARE_API_MOCK(Win32, WIN32_FUNCTIONS);
-
 // Define a test fixture.
 class Foo_Test : public t::Test {
 public:
@@ -64,13 +61,11 @@ public:
   void TearDown() override {
     // Explicit verification before the mock is destroyed.
     t::Mock::VerifyAndClearExpectations(&m_mock);
-    // Remove interceptions from calls.
-    DTGM_DETACH_API_MOCK(Win32);
   }
 
 protected:
   // Instantiate mock object m_mock and intercept calls.
-  DTGM_DEFINE_API_MOCK(Win32, m_mock);
+  DTGM_API_MOCK(m_mock, WIN32_FUNCTIONS);
   // Handle for use in mocked calls. Not a _real_ handle though so don't use in any actual API calls.
   HANDLE m_hFile = &m_mock;
   DWORD m_bytes = 0;
