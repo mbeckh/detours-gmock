@@ -24,7 +24,7 @@ find_package(GTest REQUIRED)
 add_library(detours-gmock INTERFACE
     "include/detours_gmock.h"
 )
-add_library(detours::gmock ALIAS detours-gmock)
+add_library(detours-gmock::detours-gmock ALIAS detours-gmock)
 
 target_compile_features(detours-gmock INTERFACE cxx_std_20)
 target_include_directories(detours-gmock INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:include>")
@@ -42,7 +42,7 @@ write_basic_package_version_file("${PROJECT_BINARY_DIR}/detours-gmock-config-ver
 
 install(TARGETS detours-gmock EXPORT detours-gmock-targets)
 install(FILES "include/detours_gmock.h" TYPE INCLUDE)
-install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours::")
+install(EXPORT detours-gmock-targets DESTINATION "share/detours-gmock" NAMESPACE "detours-gmock::")
 install(FILES "${PROJECT_BINARY_DIR}/detours-gmock-config-version.cmake" "${PROJECT_BINARY_DIR}/detours-gmock-config.cmake" DESTINATION "share/detours-gmock")
 
 if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
@@ -61,7 +61,7 @@ if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
     )
-    target_link_libraries(detours-gmock_Test PRIVATE detours::gmock GTest::gtest GTest::gtest_main shlwapi)
+    target_link_libraries(detours-gmock_Test PRIVATE detours-gmock::detours-gmock GTest::gtest GTest::gtest_main shlwapi)
 
     add_test(NAME detours-gmock_Test_PASS COMMAND detours-gmock_Test)
 endif()
