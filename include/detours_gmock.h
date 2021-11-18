@@ -125,32 +125,36 @@ private:                                                                        
 
 #define DTGM_DETACH_API_MOCK(name_)  // deprecated
 
-#define DTGM_API_MOCK_(name_, var_, functions_) \
-	DTGM_DECLARE_API_MOCK(name_, functions_);   \
+#define DTGM_API_MOCK_HELPER(name_, var_, functions_) \
+	DTGM_DECLARE_API_MOCK(name_, functions_);         \
 	DTGM_DEFINE_API_MOCK(name_, var_)
 
-#define DTGM_NICE_API_MOCK_(name_, var_, functions_) \
-	DTGM_DECLARE_API_MOCK(name_, functions_);        \
+#define DTGM_NICE_API_MOCK_HELPER(name_, var_, functions_) \
+	DTGM_DECLARE_API_MOCK(name_, functions_);              \
 	DTGM_DEFINE_NICE_API_MOCK(name_, var_)
 
-#define DTGM_STRICT_API_MOCK_(name_, var_, functions_) \
-	DTGM_DECLARE_API_MOCK(name_, functions_);          \
+#define DTGM_STRICT_API_MOCK_HELPER(name_, var_, functions_) \
+	DTGM_DECLARE_API_MOCK(name_, functions_);                \
 	DTGM_DEFINE_STRICT_API_MOCK(name_, var_)
 
-#define DTGM_API_MOCK_NAME_(base_, id_) base_##id_
-#define DTGM_API_MOCK_NAME(base_, id_) DTGM_API_MOCK_NAME_(base_, id_)
+#define DTGM_API_MOCK_NAME_HELPER(base_, id_) base_##id_
+#define DTGM_API_MOCK_NAME(base_, id_) DTGM_API_MOCK_NAME_HELPER(base_, id_)
 
 #define DTGM_API_MOCK(var_, functions_) \
-	DTGM_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
+	DTGM_API_MOCK_HELPER(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
 
 #define DTGM_NICE_API_MOCK(var_, functions_) \
-	DTGM_NICE_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
+	DTGM_NICE_API_MOCK_HELPER(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
 
 #define DTGM_STRICT_API_MOCK(var_, functions_) \
-	DTGM_STRICT_API_MOCK_(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
+	DTGM_STRICT_API_MOCK_HELPER(DTGM_API_MOCK_NAME(DTGM_API_, __COUNTER__), var_, functions_)
 
-#define DTGM_REAL(name_, function_) /* deprecated */ \
-	detours_gmock_##name_::DTGM_Function_##function_
+#define DTGM_STRINGIZE(arg_) #arg_
+#define DTGM_MAKE_STRING(macro_, value_) macro_(value_)
+
+#define DTGM_REAL(name_, function_)                                                                                                        \
+	__pragma(message(__FILE__ "(" DTGM_MAKE_STRING(DTGM_STRINGIZE, __LINE__) "): DTGM_REAL is deprecated, use mock.DTGM_Real_<function>")) \
+	    detours_gmock_##name_::DTGM_Function_##function_
 
 //
 //

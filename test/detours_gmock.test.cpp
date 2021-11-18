@@ -184,8 +184,8 @@ TEST(API_Test, Mock_CallReal_ReturnResult) {
 	    .WillByDefault(t::Return(kMockedResult));
 
 	EXPECT_CALL(mock, StrToIntA(t::_)).Times(0);
-	EXPECT_EQ(12, DTGM_REAL(Win32, StrToIntA)("12"));
-	EXPECT_EQ(0, DTGM_REAL(Win32, StrToIntA)("Test"));
+	EXPECT_EQ(12, mock.DTGM_Real_StrToIntA("12"));
+	EXPECT_EQ(0, mock.DTGM_Real_StrToIntA("Test"));
 }
 
 TEST(API_Test, MockLocal_CallReal_ReturnResult) {
