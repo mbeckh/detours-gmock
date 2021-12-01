@@ -43,18 +43,21 @@ limitations under the License.
 public:                                                                                                                         \
 	MOCK_METHOD(return_, function_, parameters_, (Calltype(callType_)));                                                        \
 	return_ DTGM_Real_##function_ parameters_ {                                                                                 \
-		return DTGM_Function_##function_ arguments_;                                                                            \
+		return DTGM_FunctionPointers::DTGM_Function_##function_ arguments_;                                                     \
 	}                                                                                                                           \
-	/* NOLINTNEXTLINE(bugprone-macro-parentheses, cppcoreguidelines-avoid-non-const-global-variables) */                        \
-	static inline return_(callType_* DTGM_Function_##function_) parameters_ = ::function_;                                      \
                                                                                                                                 \
 private:                                                                                                                        \
 	static return_ DTGM_Call_##function_ parameters_ {                                                                          \
-		return DTGM_Function_##function_ arguments_;                                                                            \
+		return DTGM_FunctionPointers::DTGM_Function_##function_ arguments_;                                                     \
 	}                                                                                                                           \
 	static return_ callType_ DTGM_My_##function_ parameters_ {                                                                  \
 		return s_pMock->function_ arguments_;                                                                                   \
 	}
+
+// wrap pointers in class to allow unqualified access without name conflicts with mock method
+#define DTGM_INTERNAL_DEFINE_API_FUNCTION_PTR(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_) \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses, cppcoreguidelines-avoid-non-const-global-variables) */                         \
+	static inline return_(callType_* DTGM_Function_##function_) parameters_ = function_;
 
 #define DTGM_INTERNAL_SET_DEFAULT_API_ACTION(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_) \
 	do {                                                                                                                        \
@@ -68,10 +71,10 @@ private:                                                                        
 	} while (0)
 
 #define DTGM_INTERNAL_API_ATTACH(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_) \
-	ASSERT_EQ(NO_ERROR, DetourAttach(&reinterpret_cast<void*&>(DTGM_Function_##function_), reinterpret_cast<void*>(DTGM_My_##function_)))
+	ASSERT_EQ(NO_ERROR, DetourAttach(&reinterpret_cast<void*&>(DTGM_FunctionPointers::DTGM_Function_##function_), reinterpret_cast<void*>(DTGM_My_##function_)))
 
 #define DTGM_INTERNAL_API_DETACH(parameterCount_, return_, callType_, function_, parameters_, arguments_, default_) \
-	ASSERT_EQ(NO_ERROR, DetourDetach(&reinterpret_cast<void*&>(DTGM_Function_##function_), reinterpret_cast<void*>(DTGM_My_##function_)))
+	ASSERT_EQ(NO_ERROR, DetourDetach(&reinterpret_cast<void*&>(DTGM_FunctionPointers::DTGM_Function_##function_), reinterpret_cast<void*>(DTGM_My_##function_)))
 
 #define DTGM_DECLARE_API_MOCK(name_, functions_)                                 \
 	class detours_gmock_##name_ {                                                \
@@ -90,7 +93,10 @@ private:                                                                        
 		detours_gmock_##name_& operator=(const detours_gmock_##name_&) = delete; \
 		detours_gmock_##name_& operator=(detours_gmock_##name_&&) = delete;      \
                                                                                  \
-	public:                                                                      \
+		struct DTGM_FunctionPointers final {                                     \
+		public:                                                                  \
+			functions_(DTGM_INTERNAL_DEFINE_API_FUNCTION_PTR);                   \
+		};                                                                       \
 		/* NOLINTNEXTLINE(clang-diagnostic-extra-semi) */                        \
 		functions_(DTGM_INTERNAL_DEFINE_API_MOCK_METHOD);                        \
                                                                                  \
@@ -154,7 +160,7 @@ private:                                                                        
 
 #define DTGM_REAL(name_, function_)                                                                                                        \
 	__pragma(message(__FILE__ "(" DTGM_MAKE_STRING(DTGM_STRINGIZE, __LINE__) "): DTGM_REAL is deprecated, use mock.DTGM_Real_<function>")) \
-	    detours_gmock_##name_::DTGM_Function_##function_
+	    detours_gmock_##name_::DTGM_FunctionPointers::DTGM_Function_##function_
 
 //
 //
