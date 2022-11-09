@@ -8,5 +8,5 @@ on:
 
 jobs:
   build:
-    uses: mbeckh/cmake-utils/.github/workflows/build.yml@master
+    uses: mbeckh/cmake-utils/.github/workflows/build.yml@feature-workflow
     secrets: inherit
