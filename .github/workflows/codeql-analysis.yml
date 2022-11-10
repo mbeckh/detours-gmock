@@ -13,5 +13,5 @@ on:
 
 jobs:
   build:
-    uses: mbeckh/cmake-utils/.github/workflows/run-codeql.yml@feature-workflow
+    uses: mbeckh/cmake-utils/.github/workflows/run-codeql.yml@v1
     secrets: inherit
