@@ -1,7 +1,7 @@
 # detours-gmock
 Helper functions and macros for using detours with GoogleTest gMock.
 
-[![Release](https://img.shields.io/github/v/tag/mbeckh/detours-gmock?label=Release&style=flat-square)](https://github.com/mbeckh/detours-gmock/releases/)
+[![Release](https://img.shields.io/github/v/release/mbeckh/detours-gmock?display_name=tag&sort=semver&label=Release&style=flat-square)](https://github.com/mbeckh/detours-gmock/releases/)
 [![Tests](https://img.shields.io/github/workflow/status/mbeckh/detours-gmock/build/master?label=Tests&logo=GitHub&style=flat-square)](https://github.com/mbeckh/detours-gmock/actions)
 [![Coverage](https://img.shields.io/codecov/c/gh/mbeckh/detours-gmock/master?label=Coverage&logo=codecov&style=flat-square)](https://codecov.io/gh/mbeckh/detours-gmock)
 [![Codacy Grade](https://img.shields.io/codacy/grade/3558456c948c48a7990e169210b51f0f?label=Code%20Quality&logo=codacy&style=flat-square)](https://www.codacy.com/manual/mbeckh/detours-gmock?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mbeckh/detours-gmock&amp;utm_campaign=Badge_Grade)
@@ -87,5 +87,4 @@ TEST_F(Foo_Test, Bar) {
 ```
 
 ## License
-The code is released under the Apache License Version 2.0. Please see [LICENSE](LICENSE) for details and
-[NOTICE](NOTICE) for the required information when using detours-gmock in your own work.
+The code is released under the Apache License Version 2.0. Please see [LICENSE](LICENSE) for details.

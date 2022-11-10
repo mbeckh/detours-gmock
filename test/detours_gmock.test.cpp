@@ -271,7 +271,10 @@ TEST(Class_Test, Mock_WithAssertError_Abort) {
 	EXPECT_CALL(mock, GetValue()).Times(0);
 
 #ifdef NDEBUG
-	EXPECT_DEATH(std::ignore = other.GetValue(), "");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
+	// assign and use value to prevent removal of statement in optimization
+	int value = 0;
+	EXPECT_DEATH(value = other.GetValue(), "");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
+	EXPECT_EQ(value, 0);
 #else
 	EXPECT_DEATH(std::ignore = other.GetValue(), "Assertion failed: false");  // NOLINT(cppcoreguidelines-avoid-goto, cppcoreguidelines-pro-type-vararg)
 #endif
