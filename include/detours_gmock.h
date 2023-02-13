@@ -95,6 +95,7 @@ private:                                                                        
                                                                                  \
 		struct DTGM_FunctionPointers final {                                     \
 		public:                                                                  \
+			/* NOLINTNEXTLINE(clang-diagnostic-extra-semi) */                    \
 			functions_(DTGM_INTERNAL_DEFINE_API_FUNCTION_PTR);                   \
 		};                                                                       \
 		/* NOLINTNEXTLINE(clang-diagnostic-extra-semi) */                        \
@@ -181,7 +182,7 @@ private:                                                                        
 			Guard& operator=(const Guard&) = delete;                                                                                                              \
 			Guard& operator=(Guard&&) = delete;                                                                                                                   \
 		};                                                                                                                                                        \
-		Guard guard;                                                                                                                                              \
+		const Guard guard;                                                                                                                                        \
 		s_pClassMock->m_pObject = this;                                                                                                                           \
 		return s_pClassMock->function_ arguments_;                                                                                                                \
 	}

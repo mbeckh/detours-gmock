@@ -226,7 +226,7 @@ TEST(API_Test, StrictMock_Call_ReturnMocked) {
 //
 
 TEST(Class_Test, Plain_Call_ReturnResult) {
-	TestClass tc;
+	const TestClass tc;
 	EXPECT_EQ(TestClass::kValue, tc.GetValue());
 }
 
