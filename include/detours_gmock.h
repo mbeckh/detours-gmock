@@ -217,14 +217,11 @@ private:                                                                        
 #define DTGM_INTERNAL_CLASS_DETACH(class_, parameterCount_, return_, function_, parameters_, arguments_, default_) \
 	ASSERT_EQ(NO_ERROR, DetourDetach(&reinterpret_cast<void*&>(DTGM_FakeClass::DTGM_Function_##function_), *reinterpret_cast<BYTE**>(&DTGM_Fake_##function_)));
 
-#define DTGM_DECLARE_CLASS_MOCK(class_, functions_) \
-	DTGM_DECLARE_NAMESPACE_CLASS_MOCK(, class_, functions_)
-
-#define DTGM_DECLARE_NAMESPACE_CLASS_MOCK(namespace_, class_, functions_)                      \
+#define DTGM_INTERNAL_DECLARE_CLASS_MOCK(namespaceAndClass_, class_, functions_)               \
 	class detours_gmock_class_##class_ {                                                       \
 	private:                                                                                   \
 		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                       \
-		class DTGM_FakeClass : public namespace_##class_ {                                     \
+		class DTGM_FakeClass : public namespaceAndClass_ {                                     \
 		public:                                                                                \
 			/* NOLINTNEXTLINE(clang-diagnostic-extra-semi) */                                  \
 			functions_(DTGM_INTERNAL_CLASS_FAKE_METHOD);                                       \
@@ -248,7 +245,7 @@ private:                                                                        
 		detours_gmock_class_##class_& operator=(detours_gmock_class_##class_&&) = delete;      \
                                                                                                \
 		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                       \
-		namespace_##class_& self() const noexcept {                                            \
+		namespaceAndClass_& self() const noexcept {                                            \
 			return *m_pObject;                                                                 \
 		}                                                                                      \
 		/*  NOLINTNEXTLINE(clang-diagnostic-extra-semi) */                                     \
@@ -273,9 +270,15 @@ private:                                                                        
 		/* NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) */               \
 		static inline detours_gmock_class_##class_* s_pClassMock = nullptr;                    \
 		CRITICAL_SECTION m_cs;                                                                 \
-		namespace_##class_* m_pObject; /* NOLINT(bugprone-macro-parentheses) */                \
+		namespaceAndClass_* m_pObject; /* NOLINT(bugprone-macro-parentheses) */                \
 		friend class DTGM_FakeClass;                                                           \
 	}
+
+#define DTGM_DECLARE_CLASS_MOCK(class_, functions_) \
+	DTGM_INTERNAL_DECLARE_CLASS_MOCK(class_, class_, functions_)
+
+#define DTGM_DECLARE_NAMESPACE_CLASS_MOCK(namespace_, class_, functions_) \
+	DTGM_INTERNAL_DECLARE_CLASS_MOCK(namespace_::class_, class_, functions_)
 
 #define DTGM_DEFINE_CLASS_MOCK(class_, var_) \
 	detours_gmock_class_##class_ var_

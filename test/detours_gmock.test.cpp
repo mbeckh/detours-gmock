@@ -92,6 +92,38 @@ private:
 
 DTGM_DECLARE_CLASS_MOCK(TestClass, CLASS_FUNCTIONS);
 
+namespace mynamespace {
+
+class NamespaceTestClass {
+public:
+	[[nodiscard]] __declspec(noinline) int GetNamespaceValue() const noexcept {
+		return m_value;
+	};
+	__declspec(noinline) void SetNamespaceValue(int value) noexcept {
+		m_value = value;
+	};
+
+public:
+	static constexpr int kValue = 23;
+
+private:
+	int m_value = kValue;
+};
+
+}  // namespace mynamespace
+
+#undef NAMESPACE_CLASS_FUNCTIONS
+#define NAMESPACE_CLASS_FUNCTIONS(fn_)                               \
+	fn_(mynamespace::NamespaceTestClass, 0, int, GetNamespaceValue,  \
+	    (),                                                          \
+	    (),                                                          \
+	    nullptr);                                                    \
+	fn_(mynamespace::NamespaceTestClass, 1, void, SetNamespaceValue, \
+	    (int value),                                                 \
+	    (value),                                                     \
+	    nullptr)
+
+DTGM_DECLARE_NAMESPACE_CLASS_MOCK(mynamespace, NamespaceTestClass, NAMESPACE_CLASS_FUNCTIONS);
 
 class TestClassLocal {
 public:
@@ -239,6 +271,17 @@ TEST(Class_Test, Mock_Call_ReturnMocked) {
 	EXPECT_CALL(mock, GetValue());
 
 	EXPECT_EQ(kResult, tc.GetValue());
+}
+
+TEST(Class_Test, MockNamespace_Call_ReturnMocked) {
+	constexpr int kResult = 42;
+	const mynamespace::NamespaceTestClass tc;
+	DTGM_DEFINE_CLASS_MOCK(NamespaceTestClass, mock);
+	ON_CALL(mock, GetNamespaceValue())
+	    .WillByDefault(t::Return(kResult));
+	EXPECT_CALL(mock, GetNamespaceValue());
+
+	EXPECT_EQ(kResult, tc.GetNamespaceValue());
 }
 
 TEST(Class_Test, MockLocal_Call_ReturnMocked) {
